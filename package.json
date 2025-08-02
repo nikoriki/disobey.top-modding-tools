@@ -1,0 +1,21 @@
+{
+  "name": "disobey.topmt",
+  "version": "1.0.0",
+  "description": "modding tools for disobey.top",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.10"
+  },
+  "keywords": [],
+  "author": "desgubernamentalizar",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.0.8",
+    "electron-builder": "^24.13.3"
+  }
+}

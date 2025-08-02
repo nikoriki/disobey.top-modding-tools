@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>disobey.top modding tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body { background: #18181b; color: #e0e0e0; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
+    .hidden { display: none !important; }
+    .fade-in { animation: fadeIn 0.5s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .drop-area { border: 2px dashed #bb86fc; border-radius: 1.5rem; padding: 3rem; text-align: center; background: #23232b; transition: border-color 0.2s, box-shadow 0.2s; box-shadow: 0 4px 32px #000a; }
+    .drop-area.dragover { border-color: #fff; background: #29293a; box-shadow: 0 8px 40px #000c; }
+    .form-label { color: #bb86fc; font-weight: 600; }
+    .form-input, .form-select, .form-textarea { background: #23232b; color: #e0e0e0; border: 1px solid #333; border-radius: 0.75rem; padding: 0.75rem; width: 100%; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #bb86fc; outline: none; }
+    .btn { background: #bb86fc; color: #18181b; font-weight: bold; border-radius: 0.75rem; padding: 0.75rem 1.5rem; border: none; transition: background 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px #0004; }
+    .btn:hover { background: #a252f8; box-shadow: 0 4px 16px #0006; }
+    .success { color: #4caf50; }
+    .error { color: #f44336; }
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: #23232b; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #bb86fc; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a252f8; }
+    #custom-title-bar { -webkit-app-region: drag; height: 36px; background: #23232b; color: #bb86fc; display: flex; align-items: center; justify-content: flex-end; padding: 0 12px; font-weight: bold; font-size: 1.1rem; border-bottom: 1px solid #333; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    #custom-title-bar-buttons { -webkit-app-region: no-drag; display: flex; gap: 8px; }
+    .title-bar-btn { background: none; border: none; color: #bb86fc; font-size: 1.2rem; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+    .title-bar-btn:hover { background: #333; }
+    .title-bar-btn.close:hover { background: #440000; color: #fff; }
+    .main-content { margin-top: 48px; display: flex; flex-direction: column; align-items: center; width: 100vw; min-height: calc(100vh - 48px); }
+    .modal-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+    .modal { background: #23232b; border-radius: 1rem; padding: 2rem; min-width: 320px; max-width: 90vw; box-shadow: 0 0 40px #000; animation: fadeIn 0.3s; }
+    .modal label { color: #bb86fc; font-weight: 600; }
+    .modal input, .modal select { margin-bottom: 1rem; }
+    .more-features-btn { margin-top: 1.5rem; background: #23232b; color: #bb86fc; border: 1px solid #bb86fc; }
+    .more-features-btn:hover { background: #18181b; color: #fff; }
+    .dev-by { position: fixed; bottom: 16px; left: 0; right: 0; text-align: center; color: #bb86fc; opacity: 0.3; font-size: 1.1rem; pointer-events: none; user-select: none; }
+  </style>
+</head>
+<body>
+  <div id="custom-title-bar">
+    <div id="custom-title-bar-buttons">
+      <button class="title-bar-btn" id="minimize-btn"><i class="fas fa-minus"></i></button>
+      <button class="title-bar-btn close" id="close-btn"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+  <div class="main-content">
+    <h1 class="text-3xl font-extrabold mb-2 fade-in">disobey.top modding tools</h1>
+    <p class="mb-6 text-gray-400 fade-in">Drag and drop a <b>.mmpackage</b> file below to inject metadata or use more features.</p>
+    <button id="select-mod-folder-btn" class="btn mb-4">Select Mod Folder</button>
+    <div id="mod-folder-path" class="mb-4 text-accent-color text-center"></div>
+    <div id="drop-area" class="drop-area mb-6 fade-in">
+      <i class="fas fa-file-archive fa-3x mb-2"></i>
+      <div id="drop-text">Drop .mmpackage file here</div>
+      <div id="file-name" class="mt-2 text-accent-color"></div>
+    </div>
+    <form id="metadata-form" class="w-full max-w-md hidden fade-in">
+      <div class="mb-4">
+        <label class="form-label" for="mod-name">Mod Name</label>
+        <input class="form-input" id="mod-name" type="text" required />
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="author">Author</label>
+        <input class="form-input" id="author" type="text" required />
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="description">Description</label>
+        <textarea class="form-textarea" id="description" rows="3" required></textarea>
+      </div>
+      <div class="mb-4">
+        <label class="form-label" for="mod-type">Type of Mod</label>
+        <select class="form-select" id="mod-type" required>
+          <option value="survivor skin">Survivor Skin</option>
+          <option value="killer skin">Killer Skin</option>
+          <option value="killer exploit">Killer Exploit</option>
+          <option value="ui">UI</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <button class="btn w-full" type="submit">Inject metadata.json</button>
+    </form>
+    <button type="button" id="more-features-btn" class="btn more-features-btn w-full">More Features</button>
+    <div id="result-message" class="mt-4 text-lg"></div>
+  </div>
+  <!-- More Features Modal -->
+  <div id="more-options-modal" class="modal-bg hidden">
+    <div class="modal">
+      <h2 class="text-xl font-bold mb-4">More Features</h2>
+      <form id="more-options-form">
+        <label for="platform-code">Platform</label>
+        <select class="form-select" id="platform-code" required>
+          <option value="Windows">Steam</option>
+          <option value="WinGDK">Microsoft</option>
+          <option value="EGS">Epic Games</option>
+        </select>
+        <label for="custom-number">Custom Number (optional)</label>
+        <input class="form-input" id="custom-number" type="number" min="0" />
+        <label for="conversor-files">Convert to .mmpackage (select 4 files: .pak, .sig, .ucas, .utoc)</label>
+        <input id="conversor-files" type="file" multiple accept=".pak,.sig,.ucas,.utoc" class="mb-2" />
+        <button class="btn w-full mt-2" type="submit">Convert</button>
+        <button class="btn w-full mt-2" type="button" id="close-more-options">Close</button>
+      </form>
+      <div id="conversor-result" class="mt-2"></div>
+    </div>
+  </div>
+  <div class="dev-by">developed by desgubernamentalizar</div>
+  <script src="renderer.js"></script>
+</body>
+</html>
