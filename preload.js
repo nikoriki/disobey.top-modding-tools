@@ -2,7 +2,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
   injectMetadata: (filePath, metadata) => ipcRenderer.invoke('inject-metadata', { filePath, metadata }),
-  conversorCreateMmpackage: (files, platformCode, customNumber, modFolder) => ipcRenderer.invoke('conversor-create-mmpackage', { files, platformCode, customNumber, modFolder }),
+  conversorCreateMmpackage: (args) => ipcRenderer.invoke('conversor-create-mmpackage', args),
   minimizeWindow: () => ipcRenderer.send('minimize-window'),
   closeWindow: () => ipcRenderer.send('close-window'),
   selectFolder: () => ipcRenderer.invoke('select-folder'),
