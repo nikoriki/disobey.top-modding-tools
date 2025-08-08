@@ -95,16 +95,23 @@ return JSON.parse(data);
 });
 
 // IPC: Conversor - create .mmpackage from 4 files
-ipcMain.handle('conversor-create-mmpackage', async (event, { files, platformCode, customNumber, modFolder }) => {
+ipcMain.handle('conversor-create-mmpackage', async (event, { files, platformCode, customNumber, modFolder, customPackageName }) => {
 try {
 if (!Array.isArray(files) || files.length !== 4) throw new Error('You must provide 4 files.');
 const exts = files.map(f => f.name.split('.').pop().toLowerCase());
-if (!exts.includes('pak') || !exts.includes('sig') || !exts.includes('ucas') || !exts.includes('utoc')) {
-throw new Error('You must select one .pak, one .sig, one .ucas, and one .utoc file.');
+const requiredExts = ['pak', 'sig', 'ucas', 'utoc'];
+const allPresent = requiredExts.every(ext => exts.includes(ext));
+if (files.length !== 4 || !allPresent) {
+  throw new Error('You must select exactly one each of: .pak, .sig, .ucas, .utoc (case-insensitive).');
 }
-let outName = 'mod';
-if (customNumber) outName += `_${customNumber}`;
-outName += '.mmpackage';
+let outName;
+if (customPackageName && customPackageName.trim()) {
+  outName = customPackageName.trim() + '.mmpackage';
+} else {
+  outName = 'mod';
+  if (customNumber) outName += `_${customNumber}`;
+  outName += '.mmpackage';
+}
 const zip = new AdmZip();
 for (const file of files) {
 let ext = file.name.split('.').pop().toLowerCase();
