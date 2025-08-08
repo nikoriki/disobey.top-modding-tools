@@ -127,12 +127,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
     const platformCode = platformCodeSelect.value;
     const customNumber = document.getElementById('custom-number').value.trim();
-    const res = await window.electronAPI.conversorCreateMmpackage(
-      files.map(f => ({ name: f.name, path: f.path })),
+    const customPackageName = document.getElementById('custom-package-name').value.trim();
+    const res = await window.electronAPI.conversorCreateMmpackage({
+      files: files.map(f => ({ name: f.name, path: f.path })),
       platformCode,
       customNumber,
-      modFolder
-    );
+      modFolder,
+      customPackageName
+    });
     if (res.success) {
       conversorResult.textContent = `Converted to .mmpackage in your mod folder.`;
       conversorResult.className = 'success';
